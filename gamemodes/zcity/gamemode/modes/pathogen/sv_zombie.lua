@@ -206,26 +206,6 @@ function MODE:GetRandomSpawn(ply)
 	self.spawns[k] = true
 end
 
-function MODE:SetupZombie(ply) // unused
-	ply:SetPlayerClass("zombie", {instant = true})
-
-	ply:Give("weapon_hands_sh")
-	ply:SelectWeapon("weapon_hands_sh")
-
-	local zomspawns = {}
-
-	if zb.Points["RandomSpawns"] and zb.Points["RandomSpawns"].Points then
-		for _, v2 in ipairs(zb.Points["RandomSpawns"].Points) do // i don't care anymore
-			table.insert(zomspawns, v2.pos)
-		end
-	end
-
-	ply:SetPos(zb:FurthestFromEveryone())
-
-	net.Start("zb_zomzombriefing")
-	net.Send(ply)
-end
-
 function MODE:SetupTraitor(ply)
 	ply:Spawn()
 	ApplyAppearance(ply,false,false,false,true)

@@ -40,8 +40,7 @@ SWEP.blockinganim = 0
 
 local clawClasses = {
 	["furry"] = true,
-	["headcrabzombie"] = true,
-	["zombie"] = true,
+	["headcrabzombie"] = true
 }
 
 local function qerp(delta, a, b)
@@ -63,10 +62,6 @@ function SWEP:OnRemove()
 	--[[if IsValid(self.worldModel) then
 		self.worldModel:Remove()
 	end--]]
-end
-
-local function isFurryOrZombie(ply) -- if theres another class that uses furry stuff you can add another playerclassname check here now
-    return ply.PlayerClassName == "furry" or ply.PlayerClassName == "zombie"
 end
 
 if CLIENT then
@@ -794,7 +789,7 @@ function SWEP:SecondaryAttack()
 				self:GetOwner():SetVelocity(self:GetOwner():GetAimVector() * 20)
 				tr.Entity:SetVelocity((self:GetOwner():KeyDown(IN_SPEED) and 1 or -1) * self:GetOwner():GetAimVector() * 50)
 				self:SetNextSecondaryFire(CurTime() + .25)
-				if self:GetOwner().organism.superfighter or self:GetOwner().PlayerClassName == "sc_infiltrator" or (isFurryOrZombie(self:GetOwner()) and !(isFurryOrZombie(tr) or (tr.Entity.IsBerserk and tr.Entity:IsBerserk()))) or self:GetOwner():IsBerserk() then
+				if self:GetOwner().organism.superfighter or self:GetOwner().PlayerClassName == "sc_infiltrator" or (self:GetOwner().PlayerClassName == "furry" and !(tr.Entity.PlayerClassName == "furry" or (tr.Entity.IsBerserk and tr.Entity:IsBerserk()))) or self:GetOwner():IsBerserk() then
 					hg.LightStunPlayer(tr.Entity, 3)
 					timer.Simple(0,function()
 						local rag = hg.GetCurrentCharacter(tr.Entity)
@@ -997,7 +992,7 @@ function SWEP:ApplyForce()
 		if SERVER then
 			local ply2 = self.CarryEnt
 			local org = ply2.organism
-			if ply:KeyDown(IN_ATTACK) and !ply.organism.superfighter and !(org and isFurryOrZombie(ply) and !isFurryOrZombie(org.owner)) and !ply:IsBerserk() then
+			if ply:KeyDown(IN_ATTACK) and !ply.organism.superfighter and !(org and ply.PlayerClassName == "furry" and org.owner.PlayerClassName != "furry") and !ply:IsBerserk() then
 				local bone = self.CarryEnt:GetBoneName(self.CarryEnt:TranslatePhysBoneToBone(self.CarryBone))
 
 				local tr = {}
@@ -1061,13 +1056,6 @@ function SWEP:ApplyForce()
 
 				//phys:ApplyForceCenter(ply:GetAimVector() * 40000 * self.Penetration)
 				//self:SetCarrying()
-			end
-
-			if ply:KeyDown(IN_ATTACK) and ply.PlayerClassName == "zombie" and org ~= nil and org.alive and org.owner.PlayerClassName != "zombie" and !(org.owner.IsBerserk and org.owner:IsBerserk()) then
-				org.zombified = math.Approach(org.zombified, 1, FrameTime() / 6)
-				ply:SetLocalVar("infected", org.zombified)
-
-				hg.LightStunPlayer(org.owner, 1)
 			end
 
 			if ply:KeyDown(IN_ATTACK) and (ply.organism.superfighter or ply:IsBerserk()) then
@@ -1235,7 +1223,7 @@ local customClassInfo = {
 		handsDesc = "furry",
 		Instructions = "LMB - raise paws\nRELOAD - lower paws\n\nIn the raised state:\nLMB - strike\nRMB - block\n\n<color=91,121,229>As a bearer of a pathowogen infection, you have new abilities.\n\nIn lowered state, hold RMB to grab uninfected prey, then hold LMB to assimilate them.\n\nYou can press LMB to lick your fellow mates, doing so helps them alleviate their pain.\n\n:3<color=180,180,180>"
 	},
-	["zombie"] = {
+	["headcrabzombie"] = {
 		PrintName = "Claws",
 		WepSelectIcon = Material("vgui/wep_jack_hmcd_zombhands"),
 		handsDesc = "zombie",
@@ -1490,8 +1478,8 @@ function SWEP:AttackFront(special_attack, rand)
 		local havekastet = inv["Weapons"] and inv["Weapons"]["hg_brassknuckles"]
 		local SelfForce, Mul = 150, 1 * (havekastet and 1.7 or 1)
 
-		if owner.PlayerClassName == "furry" and hgIsDoor(Ent) then
-			if (Ent.Clawed or 0) > math.random(25, 50) then
+		if clawClasses[owner.PlayerClassName] and hgIsDoor(Ent) then
+			if (Ent.Clawed or 0) > (owner.PlayerClassName == "headcrabzombie" and math.random(3, 6) or math.random(15, 30)) then
 				hgBlastThatDoor(Ent,self:GetOwner():GetAimVector() * 50 + self:GetOwner():GetVelocity())
 			else
 				sound.Play(vent[math.random(#vent)], HitPos, 90, math.random(90, 110), 1)
@@ -1511,12 +1499,18 @@ function SWEP:AttackFront(special_attack, rand)
 					sound.Play("zbattle/berserk/unarmed" .. math.random(1, 9) .. ".wav", HitPos, 90, math.random(90, 110), 0.1 + owner.organism.berserk / 2)
 				end
 			else
-				sound.Play( owner.PlayerClassName == "furry" and "pwb/weapons/knife/hit"..math.random(1,4)..".wav" or "Flesh.ImpactHard", HitPos, 65, math.random(90, 110))
+				local snd = "Flesh.ImpactHard"
+				if owner.PlayerClassName == "headcrabzombie" then
+					snd, pitch = "npc/zombie/claw_strike"..math.random(3)..".wav"
+				elseif owner.PlayerClassName == "headcrabzombie" then
+					snd, pitch = "pwb/weapons/knife/hit"..math.random(1,4)..".wav"
+				end
+				sound.Play(snd, HitPos, 65, math.random(90, 110))
 				if owner:IsBerserk() then
 					sound.Play("zbattle/berserk/unarmed" .. math.random(1, 9) .. ".wav", HitPos, 90, math.random(90, 110), 0.1 + owner.organism.berserk / 2)
 				end
 			end
-			if owner.PlayerClassName == "furry" then
+			if clawClasses[owner.PlayerClassName] then
 				util.Decal("Blood",HitPos + owner:EyeAngles():Forward() * -1,HitPos - owner:EyeAngles():Forward() * -1)
 				timer.Simple(0,function()
 					local effectdata2 = EffectData()
@@ -1528,7 +1522,13 @@ function SWEP:AttackFront(special_attack, rand)
 				end)
 			end
 		else
-			sound.Play(owner.PlayerClassName == "furry" and "pwb/weapons/knife/hitwall.wav" or "Flesh.ImpactSoft", HitPos, 65, math.random(90, 110))
+			local snd = "Flesh.ImpactSoft"
+			if owner.PlayerClassName == "headcrabzombie" then
+				snd, pitch = "npc/zombie/claw_strike"..math.random(3)..".wav"
+			elseif owner.PlayerClassName == "headcrabzombie" then
+				snd, pitch = "pwb/weapons/knife/hitwall.wav"
+			end
+			sound.Play(snd, HitPos, 65, math.random(90, 110))
 			if owner:IsBerserk() then
 				sound.Play(concrete[math.random(#concrete)], HitPos, 90, math.random(90, 110), 0.1 + owner.organism.berserk / 2)
 				util.Decal("Rollermine.Crater",HitPos + owner:EyeAngles():Forward() * -1,HitPos - owner:EyeAngles():Forward() * -1, Ent)
@@ -1585,9 +1585,9 @@ function SWEP:AttackFront(special_attack, rand)
 		local Dam = DamageInfo()
 		Dam:SetAttacker(owner)
 		Dam:SetInflictor(self)
-		Dam:SetDamage(DamageAmt * Mul * 0.75 * (owner.PlayerClassName == "furry" and 5 or 1))
+		Dam:SetDamage(DamageAmt * Mul * 0.75 * (clawClasses[owner.PlayerClassName] and 5 or 1))
 		Dam:SetDamageForce(AimVec * Mul ^ 2)
-		Dam:SetDamageType((owner.PlayerClassName == "furry" or (Ent:GetClass() == "func_breakable_surf")) and DMG_SLASH or DMG_CLUB)
+		Dam:SetDamageType((clawClasses[owner.PlayerClassName] or (Ent:GetClass() == "func_breakable_surf")) and DMG_SLASH or DMG_CLUB)
 		Dam:SetDamagePosition(HitPos)
 		Ent:TakeDamageInfo(Dam)
 		

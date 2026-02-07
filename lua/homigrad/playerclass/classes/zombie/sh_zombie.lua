@@ -195,26 +195,6 @@ function CLASS.On(self, data)
 	end)
 end
 
-local bluewhite = Color(187, 187, 255)
-
-if CLIENT then
-	surface.CreateFont("ZB_ProotLarge", {
-		font = "Bahnschrift",
-		size = ScreenScale(8),
-		extended = true,
-		weight = 400,
-		antialias = true
-	})
-
-	surface.CreateFont("ZB_ProotLarge2", {
-		font = "Bahnschrift",
-		size = ScreenScale(8),
-		extended = true,
-		weight = 400,
-		antialias = true
-	})
-end
-
 --[[
 local zombified = 0
 local alpha = 0
@@ -465,7 +445,7 @@ if CLIENT then
 		end
 	end)
 
-	local white = Material("nature/toxicslime002a")
+	local slime = Material("nature/toxicslime002a")
 
 	hg.infecting = hg.infecting or {}
 
@@ -539,7 +519,7 @@ if CLIENT then
 
 		render.SetStencilReferenceValue( 2 )
 
-		render.SetMaterial(white)
+		render.SetMaterial(slime)
 		local pos = ent:GetBoneMatrix(ent:LookupBone("ValveBiped.Bip01_Head1")):GetTranslation()
 		render.DrawSphere(pos, 48 * math.max(status - 0.3, 0), 32, 32, Color(255, 0, 0))
 		local pos = ent:GetBoneMatrix(ent:LookupBone("ValveBiped.Bip01_Spine1")):GetTranslation()
@@ -600,6 +580,8 @@ if CLIENT then
 		render.SetStencilCompareFunction( STENCILCOMPARISONFUNCTION_NOTEQUAL )
 
 		ent:DrawModel()
+		
+		
 
 		render.DepthRange( 0, 1 )
 		

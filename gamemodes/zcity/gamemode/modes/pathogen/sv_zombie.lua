@@ -131,9 +131,9 @@ function MODE:Intermission()
 end
 
 MODE.Vehicles = {
-	"blackterios_glide_ika_renault_torino_coupe",
-	"blackterios_glide_fiat_duna",
-	"blackterios_glide_renault_trafic"
+	"gtav_wolfsbane",
+	"gtav_speedo",
+	"gtav_insurgent"
 }
 
 function MODE:SpawnInterests()

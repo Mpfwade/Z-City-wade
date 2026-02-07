@@ -82,7 +82,17 @@ local zomspeak_phrases = {
 	"breathing/agonalbreathing_6.wav",
 	"breathing/agonalbreathing_7.wav",
 	"breathing/agonalbreathing_8.wav",
-	"breathing/agonalbreathing_9.wav", 
+	"breathing/agonalbreathing_9.wav",
+	"npc/fast_zombie/wake1.wav",
+	"npc/antlion_grub/agrub_alert1.wav",
+	"npc/antlion_grub/agrub_alert2.wav",
+	"npc/antlion_grub/agrub_alert3.wav",
+	"npc/barnacle/neck_snap1.wav",
+	"npc/barnacle/neck_snap2.wav",
+	"npc/zombie/zombie_pain2.wav",
+	"npc/zombie/zombie_pain4.wav",
+	"npc/zombie/zombie_pain6.wav",
+	"npc/zombie/zombie_voice_idle6.wav",
 }
 
 hook.Add("HG_ReplacePhrase", "ZomPhrases", function(ent, phrase, muffed, pitch)
@@ -115,8 +125,10 @@ hook.Add("Org Think", "ItHurtsfrfr",function(owner, org, timeValue)
 	end
 end)
 
-hook.Add("PlayerCanPickupWeapon", "homigrad-weapons", function(ply, wep)
-	if ply.PlayerClassName == "zombie" then
+hook.Add("PlayerCanPickupWeapon", "ZomWeapons", function(ply, wep)
+	if ply.PlayerClassName != "zombie" or (ply.PlayerClassName == "zombie" and IsValid(wep) and wep:GetClass() == "weapon_hands_sh") then
+		return true
+	else
 		return false
 	end
 end)

@@ -1042,9 +1042,6 @@ function SWEP:ApplyForce()
 				ply:SetLocalVar("infected", org.zombified)
 
 				hg.LightStunPlayer(org.owner, 1)
-
-				//phys:ApplyForceCenter(ply:GetAimVector() * 40000 * self.Penetration)
-				//self:SetCarrying()
 			end
 
 			if ply:KeyDown(IN_ATTACK) and (ply.organism.superfighter or ply:IsBerserk()) then
@@ -1379,44 +1376,45 @@ function SWEP:PrimaryAttack(forcespecial)
 		end
 	end
 
-	if self.IsLocal and not self:IsLocal() then
+	if self.IsLocal and not self:IsLocal() or owner.PlayerClassName == "headcrabzombie" then
 		owner:AddVCDSequenceToGestureSlot(GESTURE_SLOT_ATTACK_AND_RELOAD,owner:LookupSequence((special_attack or rand) and "range_fists_r" or "range_fists_l"),0,true)
 	end
 
 	self:UpdateNextIdle()
 
-	self:SetNextPrimaryFire(CurTime() + .35 * math.Clamp((180 - owner.organism.stamina[1]) / 90,1,2) + (special_attack and 0.5 or isFurryOrZombie(owner) and 0.4 or 0))
-	self:SetNextSecondaryFire(CurTime() + .35 + (special_attack and 0.5 or isFurryOrZombie(owner) and 0.4 or 0))
+	self:SetNextPrimaryFire(CurTime() + .35 * math.Clamp((180 - owner.organism.stamina[1]) / 90,1,2) + (special_attack and 0.5 or clawClasses[owner.PlayerClassName] and 0.4 or 0))
+	self:SetNextSecondaryFire(CurTime() + .35 + (special_attack and 0.5 or clawClasses[owner.PlayerClassName] and 0.4 or 0))
 	self:SetLastShootTime(CurTime())
 
-	if isFurryOrZombie(owner) then
+	local snd, pitch = "weapons/slam/throw.wav", math.random(110, 120)
+	if owner.PlayerClassName == "headcrabzombie" then
+		snd, pitch = "npc/zombie/claw_miss"..math.random(2)..".wav", math.random(95, 110)
+	end
+	if owner.PlayerClassName == "furry" then
 		local Ent = WhomILookinAt(owner, .3, 45)
 		if IsValid(Ent) then
 			local ent_org = Ent.organism -- ServerLog: Mr. Point: я люблю плывиски mrrrph~~
-			if ent_org and isFurryOrZombie(ent_org) then
+			if ent_org and ent_org.owner.PlayerClassName == "furry" then
 				if (owner.cooldownlick or 0) < CurTime() and SERVER then
 					owner.cooldownlick = CurTime() + 1
 
 					ent_org.avgpain = math.Approach(ent_org.avgpain, 0, 15)
 					ent_org.painadd = math.Approach(ent_org.painadd, 0, 15)
-                if ent_org.owner.PlayerClassName == "furry" then
-					owner:EmitSound("zbattle/furry/lick"..math.random(3)..".wav") 
-                else
-                     owner:EmitSound("npc/antlion_grub/agrub_squish1.wav")
-                end
+
+					owner:EmitSound("zbattle/furry/lick"..math.random(3)..".wav")
 					self:SetNextPrimaryFire(CurTime() + .5)
 				end
 
 				//self:SetFists(false)
 				return
 			else
-				if SERVER then sound.Play("weapons/slam/throw.wav", self:GetPos(), 65, math.random(110, 120)) end
+				if SERVER then sound.Play(snd, self:GetPos(), 65, pitch) end
 			end
 		else
-			if SERVER then sound.Play("weapons/slam/throw.wav", self:GetPos(), 65, math.random(110, 120)) end
+			if SERVER then sound.Play(snd, self:GetPos(), 65, pitch) end
 		end
 	else
-		if SERVER then sound.Play("weapons/slam/throw.wav", self:GetPos(), 65, math.random(110, 120)) end
+		if SERVER then sound.Play(snd, self:GetPos(), 65, pitch) end
 	end
 
 	if SERVER then
@@ -1426,7 +1424,7 @@ function SWEP:PrimaryAttack(forcespecial)
 	if special_attack then
 		self:DoBFSAnimation("fists_uppercut",1)
 	else
-		self:DoBFSAnimation(side,isFurryOrZombie(owner) and 1 or 0.5)
+		self:DoBFSAnimation(side, clawClasses[owner.PlayerClassName] and 1 or 0.5)
 	end
 end
 

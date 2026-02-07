@@ -223,9 +223,9 @@ if SERVER then
 		mtcop_phrases[k] = "npc/metropolice/vo/" .. v
 	end
 
-	hook.Add("HG_ReplacePhrase", "metropolice_phrase", function(ent, phrase, muffed, pitch)
-		if ent.PlayerClassName == "Metrocop" then
-			return ent, mtcop_phrases[math.random(#mtcop_phrases)], muffed, pitch
+	hook.Add("HG_ReplacePhrase", "metropolice_phrase", function(ply, phrase, muffed, pitch)
+		if IsValid(ply) and ply.PlayerClassName == "Metrocop" then
+			return ply, mtcop_phrases[math.random(#mtcop_phrases)], muffed, pitch
 		end
 	end)
 end

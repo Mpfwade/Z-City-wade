@@ -380,9 +380,9 @@ if SERVER then
 		"npc/combine_soldier/vo/wehavenontaggedviromes.wav"
 	}
 
-	hook.Add("HG_ReplacePhrase", "combine_phrase", function(ent, phrase, muffed, pitch)
-		if ent.PlayerClassName == "Combine" then
-			return ent, cmb_phrases[math.random(#cmb_phrases)], muffed, pitch
+	hook.Add("HG_ReplacePhrase", "combine_phrase", function(ply, phrase, muffed, pitch)
+		if IsValid(ply) and ply.PlayerClassName == "Combine" then
+			return ply, cmb_phrases[math.random(#cmb_phrases)], muffed, pitch
 		end
 	end)
 end

@@ -1224,7 +1224,6 @@ function SWEP:Think()
 		self.PrintName = "Claws"
 		self.Instructions = "LMB - raise claws\nRELOAD - lower claws\n\nIn the raised state:\nLMB - strike\nRMB - block\n\n<color=145,2,2>As a bearer of the undead pathogen infection, you have new abilities.\n\nIn lowered state, hold RMB to grab uninfected prey, then hold LMB to mutilate them.\n\nYou can press LMB to feed your fellow undead, doing so helps them alleviate their pain."
 		self.handsDesc = "zombie"
-		self.WepSelectIcon = Material("vgui/wep_jack_hmcd_hands")
 		self.InfoMarkup = nil
 	elseif self.handsDesc != "default" then
 		self.PrintName = "Hands"

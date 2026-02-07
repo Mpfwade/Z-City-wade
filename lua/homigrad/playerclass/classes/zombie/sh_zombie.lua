@@ -356,7 +356,7 @@ if CLIENT then
 
 	local foundPrey = {}
 
-	hook.Add("PostDrawTranslucentRenderables", "FindPrey", function()
+	hook.Add("PostDrawTranslucentRenderables", "SmellPrey", function()
 		if scan then
 			scanRadius = math.Approach(scanRadius, 100000, FrameTime() * 1000)
 			BorderSphereUnit(ColorAlpha(scancolor, 255 - (math.min(scanRadius / 30, 255))), scanPos, scanRadius, 32, scanRadius / 30)
@@ -401,7 +401,7 @@ if CLIENT then
 
 	local glow = Material("sprites/light_ignorez")
 
-	hook.Add("HUDPaint", "FindPrey", function()
+	hook.Add("HUDPaint", "SmellFindPrey", function()
 		if lply.PlayerClassName != "zombie" then return end
 
 		-- PrintTable(foundPrey)
@@ -422,7 +422,7 @@ if CLIENT then
 		end
 	end)
 
-	local function scanForPrey()
+	local function smellForPrey()
 		if scanCD > CurTime() then
 			return
 		end
@@ -459,9 +459,9 @@ if CLIENT then
 		end)
 	end
 
-	hook.Add("radialOptions", "scanprey", function()
+	hook.Add("radialOptions", "smellprey", function()
 		if LocalPlayer():Alive() and LocalPlayer().PlayerClassName == "zombie" then
-			hg.radialOptions[#hg.radialOptions + 1] = {scanForPrey, "Echo Locate"}
+			hg.radialOptions[#hg.radialOptions + 1] = {smellForPrey, "Echo Locate"}
 		end
 	end)
 

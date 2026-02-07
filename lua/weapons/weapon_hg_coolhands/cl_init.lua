@@ -563,10 +563,6 @@ function SWEP:Think()
 			self.PrintName = "Paws"
 			self.WepSelectIcon = paw
 			self.Instructions = "LMB - raise paws\nRELOAD - lower paws\n\nIn the raised state:\nLMB - strike\nRMB - block\n\n<color=91,121,229>As a bearer of a pathowogen infection, you have new abilities.\n\nIn lowered state, hold RMB to grab uninfected prey, then hold LMB to assimilate them.\n\nYou can press LMB to lick your fellow mates, doing so helps them alleviate their pain.\n\n:3<color=180,180,180>"
-		elseif owner.PlayerClassName == "zombie" and self.PrintName ~= "Claws" then
-			self.PrintName = "Claws"
-		    self.Instructions = "LMB - raise claws\nRELOAD - lower claws\n\nIn the raised state:\nLMB - strike\nRMB - block\n\n<color=145,2,2>As a bearer of the undead pathogen infection, you have new abilities.\n\nIn lowered state, hold RMB to grab uninfected prey, then hold LMB to mutilate them.\n\nYou can press LMB to feed your fellow undead, doing so helps them alleviate their pain."
-			self.WepSelectIcon = Material("vgui/wep_jack_hmcd_hands")
 		else
 			self.PrintName = "Hands"
 		end
@@ -598,8 +594,8 @@ function SWEP:PrimaryAttack(forcespecial)
 	local owner = self:GetOwner()
 	if not IsValid(owner) or owner:InVehicle() then return end
 	if (self.attacked or 0) > CurTime() then return end
-	local isfurorzom = (owner.PlayerClassName == "furry" or owner.PlayerClassName == "zombie")
-	local side = isfurorzom and "fists_left" or "attack_quick_2"
+	local isfur = owner.PlayerClassName == "furry"
+	local side = isfur and "fists_left" or "attack_quick_2"
 	local rand = math.Round(util.SharedRandom( "fist_Punching", 1, 2 ),0) == 1
 
 	local inv = owner:GetNetVar("Inventory",{})
@@ -607,7 +603,7 @@ function SWEP:PrimaryAttack(forcespecial)
 	local havekastet = inv["Weapons"] and inv["Weapons"]["hg_brassknuckles"]
 
 	if rand or (CLIENT and ((owner:GetTable().ChatGestureWeight and owner:GetTable().ChatGestureWeight >= 0.1) or twohands)) or havekastet then
-		if isfurorzom then
+		if isfur then
 			side = "fists_right"
 		else
 			side = "attack_quick_1"
@@ -642,7 +638,7 @@ function SWEP:PrimaryAttack(forcespecial)
 		ViewPunch(special_attack and specang1 or Angle(-1, -(rand and -3 or 3), (rand and -8 or 8)))
 		//ViewPunch2(special_attack and Angle(5, -2, 2) or Angle((-1), -(rand and 2 or -2), (rand and 6 or -6)))
 		if special_attack then
-			if not isfurorzom then
+			if not isfur then
 				timer.Simple(0.4, function()
 					ViewPunch(specang2)
 				end)

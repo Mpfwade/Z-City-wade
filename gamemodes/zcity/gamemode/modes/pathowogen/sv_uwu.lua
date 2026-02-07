@@ -133,7 +133,7 @@ end
 MODE.Vehicles = {
 	"gtav_wolfsbane",
 	"gtav_speedo",
-	"gtav_insurgent"
+	"gtav_gauntlet_classic"
 }
 
 function MODE:SpawnInterests()

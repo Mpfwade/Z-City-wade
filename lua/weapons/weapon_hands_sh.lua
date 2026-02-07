@@ -40,6 +40,7 @@ SWEP.blockinganim = 0
 
 local clawClasses = {
 	["furry"] = true,
+	["headcrabzombie"] = true,
 	["zombie"] = true
 }
 
@@ -717,7 +718,7 @@ end
 
 function SWEP:Holster()
 	local owner = self:GetOwner()
-	if owner.PlayerClassName == "zombie" then
+	if owner.PlayerClassName == "headcrabzombie" then
 		return false
 	end
 
@@ -1058,6 +1059,13 @@ function SWEP:ApplyForce()
 				//self:SetCarrying()
 			end
 
+			if ply:KeyDown(IN_ATTACK) and ply.PlayerClassName == "zombie" and org ~= nil and org.alive and org.owner.PlayerClassName != "zombie" and !(org.owner.IsBerserk and org.owner:IsBerserk()) then
+				org.infected = math.Approach(org.infected, 1, FrameTime() / 6)
+				ply:SetLocalVar("infected", org.infected)
+
+				hg.LightStunPlayer(org.owner, 1)
+			end
+
 			if ply:KeyDown(IN_ATTACK) and (ply.organism.superfighter or ply:IsBerserk()) then
 				phys:ApplyForceCenter(ply:GetAimVector() * 40000 * self.Penetration * (1 + ply.organism.berserk / 10))
 				self:SetCarrying()
@@ -1223,11 +1231,17 @@ local customClassInfo = {
 		handsDesc = "furry",
 		Instructions = "LMB - raise paws\nRELOAD - lower paws\n\nIn the raised state:\nLMB - strike\nRMB - block\n\n<color=91,121,229>As a bearer of a pathowogen infection, you have new abilities.\n\nIn lowered state, hold RMB to grab uninfected prey, then hold LMB to assimilate them.\n\nYou can press LMB to lick your fellow mates, doing so helps them alleviate their pain.\n\n:3<color=180,180,180>"
 	},
-	["zombie"] = {
+	["headcrabzombie"] = {
 		PrintName = "Claws",
-		WepSelectIcon = Material("vgui/wep_jack_hmcd_zombhands"),
+		WepSelectIcon = Material("vgui/wep_jack_hmcd_headcrabzombiehands"),
+		handsDesc = "headcrabzombie",
+		Instructions = "These are your headcrab zombified hands. They're no energy sword, but they still pack a wallop.\n\nLMB clobber.\nRMB to block."
+	},
+		["zombie"] = {
+		PrintName = "Claws",
+		WepSelectIcon = Material("vgui/wep_jack_hmcd_headcrabzombiehands"),
 		handsDesc = "zombie",
-		Instructions = "These are your zombified hands. They're no energy sword, but they still pack a wallop.\n\nLMB clobber.\nRMB to block."
+		Instructions = "LMB - raise claws\nRELOAD - lower claws\n\nIn the raised state:\nLMB - strike\nRMB - block\n\n<color=145,2,2>As a bearer of the undead pathogen infection, you have new abilities.\n\nIn lowered state, hold RMB to grab uninfected prey, then hold LMB to mutilate them.\n\nYou can press LMB to feed your fellow undead, doing so helps them alleviate their pain."
 	}
 }
 
@@ -1261,7 +1275,7 @@ function SWEP:Think()
 		return
 	end
 
-	if owner.PlayerClassName == "zombie" and not self:GetFists() then
+	if owner.PlayerClassName == "headcrabzombie" and not self:GetFists() then
 		self:SetFists(true)
 	end
 
@@ -1320,7 +1334,7 @@ function SWEP:Think()
 		end
 
 		//if (self:GetNextDown() < Time) or owner:KeyDown(IN_SPEED) then
-		if owner:KeyDown(IN_SPEED) and (owner.PlayerClassName != "furry" or owner:KeyDown(IN_WALK)) then
+		if owner:KeyDown(IN_SPEED) and (owner.PlayerClassName != "furry" or owner.PlayerClassName != "zombie" or owner:KeyDown(IN_WALK)) then
 			self:SetNextDown(Time + 1)
 			self:SetFists(false)
 			self:SetBlocking(false)
@@ -1330,7 +1344,7 @@ function SWEP:Think()
 	end
 
 	if IsValid(self.CarryEnt) or self.CarryEnt then HoldType = "normal" end
-	if owner:KeyDown(IN_SPEED) and ((owner.PlayerClassName != "furry" or !owner:IsBerserk()) or owner:KeyDown(IN_WALK)) then HoldType = "normal" end
+	if owner:KeyDown(IN_SPEED) and ((owner.PlayerClassName != "furry" or owner.PlayerClassName != "zombie" or !owner:IsBerserk()) or owner:KeyDown(IN_WALK)) then HoldType = "normal" end
 	if SERVER then self:SetHoldType(HoldType) end
 end
 
@@ -1689,7 +1703,7 @@ end
 function SWEP:Reload()
 	if not IsFirstTimePredicted() then return end
 
-	if self:GetOwner().PlayerClassName ~= "zombie" then
+	if self:GetOwner().PlayerClassName ~= "headcrabzombie" then
 		self:SetFists(false)
 		self:SetBlocking(false)
 	end

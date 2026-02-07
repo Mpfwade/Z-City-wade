@@ -46,6 +46,7 @@ hook.Add("Org Clear", "Main", function(org)
 	org.headamputated = false
 
 	org.furryinfected = false
+	org.zombieinfected = false
 
 	org.health = 100
 	org.canmove = true
@@ -71,6 +72,7 @@ hook.Add("Org Clear", "Main", function(org)
 	org.fearadd = 0
 	--//
 
+	org.zombified = 0
 	org.assimilated = 0
 	org.berserk = 0
 
@@ -151,6 +153,7 @@ local function send_organism(org, ply)
 	sendtable.headamputated = org.headamputated
 	sendtable.lungsfunction = org.lungsfunction
 	sendtable.consciousness = org.consciousness
+	sendtable.zombified = org.zombified
 	sendtable.assimilated = org.assimilated
 	sendtable.berserk = org.berserk
 	sendtable.LodgedEntities = org.LodgedEntities
@@ -362,6 +365,29 @@ hook.Add("Org Think", "Main", function(owner, org, timeValue)
 	if org.assimilated == 1 then
 		org.assimilated = 0
 		org.owner:SetPlayerClass("furry")
+	end
+
+	if org.owner.PlayerClassName != "zombie" and org.zombieinfected then
+		org.zombified = math.Approach(org.zombified, 1, timeValue / 30 * org.pulse / 70)
+
+		if org.zombified == 1 then
+			hg.Zombify(org.owner)
+
+			org.zombieinfected = false
+		end
+	else
+		if (org.lightstun - CurTime()) <= 0 then
+			org.zombified = math.Approach(org.zombified, 0, (timeValue / 60 * org.pulse / 70) * 6)
+		end
+	end
+	
+	if org.owner.PlayerClassName == "zombie" then
+		org.zombified = 0
+	end
+
+	if org.zombified == 1 then
+		org.zombified = 0
+		org.owner:SetPlayerClass("zombie")
 	end
 
 	org.berserk = math.Approach(org.berserk, 0, timeValue / 60)

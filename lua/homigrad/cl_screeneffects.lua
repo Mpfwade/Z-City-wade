@@ -360,7 +360,7 @@ hook.Add("Post Post Processing", "ItHurts", function()
 	consciousnessLerp = LerpFT(org.consciousness < (consciousnessLerp or 1) and 1 or 0.01, consciousnessLerp or 1, org.consciousness)
 	-- local immobilization = org.immobilization
 	PainLerp = LerpFT(0.05, PainLerp, math.max(pain * (org.otrub and 0.2 or 1), 0))
-	assimilatedLerp = LerpFT(0.01, assimilatedLerp, (org.assimilated or 0))
+	assimilatedLerp = LerpFT(0.01, assimilatedLerp, org.assimilated or org.zombified or 0)
 	tempLerp = LerpFT(0.01, tempLerp, org.temperature)
 	
 	if assimilatedLerp > 0.001 then

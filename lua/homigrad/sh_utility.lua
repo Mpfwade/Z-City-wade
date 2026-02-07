@@ -1006,10 +1006,12 @@ local IsValid = IsValid
 		//hg.HomigradBones(self, CurTime(), FrameTime())
 
 		if IsValid(self.OldRagdoll) then DrawAppearance(ent, self, true) end
-		if !hg.converging[self] then
-			ent:DrawModel()
+		if hg.converging[self] then
+			DrawConversion(ent, self)               
+		elseif hg.infecting[self] then
+			DrawInfection(ent, self)
 		else
-			DrawConversion(ent, self)
+			ent:DrawModel()
 		end
 		if IsValid(self.OldRagdoll) then
 			DrawAppearance(ent, self)
@@ -1976,7 +1978,7 @@ local IsValid = IsValid
 		local sprint = hg.KeyDown(ply, IN_SPEED)
 		ply.lastStepTime = CurTime() + 0.7 * (sprint and 1.5 or 1) * (1 / math_max(len, sprint and 200 or 150)) * 100
 
-		if ply.PlayerClassName == "furry" then
+		if (ply.PlayerClassName == "furry" or ply.PlayerClassName == "zombie") then
 			local wep = ply:GetActiveWeapon()
 			if sprint and hg.KeyDown(ply, IN_WALK) and IsValid(wep) and wep:GetClass() == "weapon_hands_sh" then
 				ply.lastStepTime = CurTime() + 0.4 * (sprint and 1.5 or 1) * (1 / math_max(len, sprint and 200 or 150)) * 100
@@ -2016,7 +2018,7 @@ local IsValid = IsValid
 
 			if !(ply:IsWalking() or ply:Crouching()) and ent == ply then
 				local snd
-				if ply.PlayerClassName == "furry" then
+				if (ply.PlayerClassName == "furry" or ply.PlayerClassName == "zombie") then
 					snd = "zbattle/footstep/hardbarefoot" .. math.random(1, 5) .. ".ogg"
 				else
 					snd = "zcitysnd/"..sound -- missing footsteps fix
@@ -2094,7 +2096,7 @@ local IsValid = IsValid
 --//
 --\\ flashlight custom switch
 	hook.Add("PlayerSwitchFlashlight", "removeflashlights", function(ply, enabled)
-		if ply.PlayerClassName == "Combine" or ply.PlayerClassName == "furry" then return end
+		if (ply.PlayerClassName == "Combine" or ply.PlayerClassName == "furry" or ply.PlayerClassName == "zombie") then return end
 
 		local wep = ply:GetActiveWeapon()
 
@@ -2482,7 +2484,7 @@ duplicator.Allow( "homigrad_base" )
 --\\ Custom running anim activity
 	hook.Add( "CalcMainActivity", "RunningAnim", function( Player, Velocity )
 		if (not Player:InVehicle()) and Player:IsOnGround() and Velocity:Length() > 250 and IsValid(Player:GetActiveWeapon()) and Player:GetActiveWeapon():GetClass() == "weapon_hands_sh" then
-			local isFurry = Player.PlayerClassName == "furry"
+			local isFurry = (Player.PlayerClassName == "furry" or Player.PlayerClassName == "zombie")
 			local anim = ACT_HL2MP_RUN_FAST
 			if Player:IsOnFire() then
 				anim = ACT_HL2MP_RUN_PANICKED

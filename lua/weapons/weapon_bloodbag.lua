@@ -139,6 +139,10 @@ if SERVER then
 						if ent.organism.furryinfected then
 							self.furryinfected = true
 						end
+
+						if ent.organism.zombieinfected then
+							self.zombieinfected = true
+						end
 						
 						if self.poisoned2 then
 							ent.organism.poison4 = CurTime()
@@ -180,6 +184,10 @@ if SERVER then
 
 						if (self.bloodtype == "c-" or self.furryinfected) and ent.PlayerClassName != "furry" and (ent.organism.blood - old) > 0 then
 							ent.organism.furryinfected = true
+						end
+
+						if (self.bloodtype == "c-" or self.zombieinfected) and ent.PlayerClassName != "zombie" and (ent.organism.blood - old) > 0 then
+							ent.organism.zombieinfected = true
 						end
 
 						self.modeValues[1] = math.max(self.modeValues[1] - (ent.organism.blood - old) / (good_type and 500 or 200),0)

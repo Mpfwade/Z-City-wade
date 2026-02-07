@@ -584,6 +584,11 @@ hook.Add("Think", "Fake", function()
 						ent2.organism.assimilated = math.Approach(ent2.organism.assimilated, 1, ragdoll.dtime / 6)
 						ent2.organism.lightstun = CurTime() + 1
 					end
+
+					if ply.PlayerClassName == "zombie" and ply2.PlayerClassName != "zombie" and IsValid(ent2) and ent2.organism then
+						ent2.organism.zombified = math.Approach(ent2.organism.zombified, 1, ragdoll.dtime / 6)
+						ent2.organism.lightstun = CurTime() + 1
+					end
 				end
 
 				local wepinreload = wep and wep.reload
@@ -658,6 +663,11 @@ hook.Add("Think", "Fake", function()
 
 					if ply.PlayerClassName == "furry" and ply2.PlayerClassName != "furry" and IsValid(ent2) and ent2.organism then
 						ent2.organism.assimilated = math.Approach(ent2.organism.assimilated, 1, ragdoll.dtime / 6)
+						ent2.organism.lightstun = CurTime() + 1
+					end
+
+					if ply.PlayerClassName == "zombie" and ply2.PlayerClassName != "zombie" and IsValid(ent2) and ent2.organism then
+						ent2.organism.zombified = math.Approach(ent2.organism.zombified, 1, ragdoll.dtime / 6)
 						ent2.organism.lightstun = CurTime() + 1
 					end
 				end
